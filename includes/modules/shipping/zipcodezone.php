@@ -110,6 +110,12 @@ Next, you will need to define which countries are in each zone.  Determining
 
 // class constructor
     function __construct() {
+      global $db, $order;
+
+// CUSTOMIZE THIS SETTING FOR THE NUMBER OF ZONES NEEDED
+      $this->num_zones = 7;
+      $this->num_zone_start = 2;
+
       $this->code = 'zipcodezone';
       $this->title = MODULE_SHIPPING_ZIPCODEZONE_TEXT_TITLE;
       $this->description = MODULE_SHIPPING_ZIPCODEZONE_TEXT_DESCRIPTION;
@@ -119,35 +125,19 @@ Next, you will need to define which countries are in each zone.  Determining
       $this->tax_basis = MODULE_SHIPPING_ZIPCODEZONE_TAX_BASIS;
 
       // disable only when entire cart is free shipping
-      if (zen_get_shipping_enabled($this->code)) {
-        $this->enabled = ((MODULE_SHIPPING_ZIPCODEZONE_STATUS == 'True') ? true : false);
-      }
- 
-      // CUSTOMIZE THIS SETTING FOR THE NUMBER OF ZONES NEEDED
-      $this->num_zones = 7;
-      $this->num_zone_start = 2;
-     
-      if (IS_ADMIN_FLAG === true) {
-  		// build in admin only additional zones if missing in the configuration table due to customization of default $this->num_zones = 3
-	  	  global $db;
-  	  	for ($i = $this->num_zone_start; $i <= $this->num_zones + ($this->num_zone_start - 1); $i++) {
-  		  	$check = $db->Execute("select * from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_SHIPPING_ZIPCODEZONE_COUNTRIES_" . $i . "'");
-	  		  if ($this->enabled && $check->EOF) {
-          $default_countries = '';
-          $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Zone " . $i ." Countries', 'MODULE_SHIPPING_ZIPCODEZONE_COUNTRIES_" . $i ."', '" . $default_countries . "', 'Comma separated list of two character ISO country codes that are part of Zone " . $i . ".<br />Set as 00 to indicate all two character ISO country codes that are not specifically defined.', '6', '0', 'zen_cfg_textarea(', now())");
-          $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Zone " . $i ." Shipping Table', 'MODULE_SHIPPING_ZIPCODEZONE_COST_" . $i ."', '3:8.50,7:10.50,99:20.00', 'Shipping rates to Zone " . $i . " destinations based on a group of maximum order weights/prices. Example: 3:8.50,7:10.50,... Weight/Price less than or equal to 3 would cost 8.50 for Zone " . $i . " destinations.<br />You can end the last amount as 10000:7% to charge 7% of the Order Total', '6', '0', 'zen_cfg_textarea(', now())");
-          $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Zone " . $i ." Handling Fee', 'MODULE_SHIPPING_ZIPCODEZONE_HANDLING_" . $i."', '0', 'Handling Fee for this shipping zone', '6', '0', now())");
-          $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Handling Per Order or Per Box Zone " . $i . "  (when by weight)' , 'MODULE_SHIPPING_ZIPCODEZONE_HANDLING_METHOD_" . $i."', 'Order', 'Do you want to charge Handling Fee Per Order or Per Box?', '6', '0', 'zen_cfg_select_option(array(\'Order\', \'Box\'), ', now())");
-  		  	}
-    		}
-  	  } // build in admin only
+      if (zen_get_shipping_enabled ($this->code)) {
+      $this->enabled = (MODULE_SHIPPING_ZIPCODEZONE_STATUS == 'True');
+      } else {
+          $this->enabled = false;
 
-      if (is_object ($order) && $this->enabled && (int)MODULE_SHIPPING_ZIPCODEZONE_ZONE > 0) {
+      }
+
+        if (is_object ($order) && $this->enabled && (int)MODULE_SHIPPING_ZIPCODEZONE_ZONE > 0) {
             $enabled_for_zone = false;
             $check = $db->Execute (
                 "SELECT zone_id 
                    FROM " . TABLE_ZONES_TO_GEO_ZONES . " 
-                  WHERE geo_zone_id = '" . MODULE_SHIPPING_ZIPCODEZONE_ZONE . "' 
+                  WHERE geo_zone_id = '" . MODULE_SHIPPING_ZIPSHIP_ZONE . "' 
                     AND zone_country_id = " . $order->delivery['country']['id'] . " 
                ORDER BY zone_id"
             );
