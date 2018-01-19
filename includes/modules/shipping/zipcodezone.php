@@ -137,7 +137,7 @@ Next, you will need to define which countries are in each zone.  Determining
             $check = $db->Execute (
                 "SELECT zone_id 
                    FROM " . TABLE_ZONES_TO_GEO_ZONES . " 
-                  WHERE geo_zone_id = '" . MODULE_SHIPPING_ZIPSHIP_ZONE . "' 
+                  WHERE geo_zone_id = '" . MODULE_SHIPPING_ZIPCODEZONE_ZONE . "' 
                     AND zone_country_id = " . $order->delivery['country']['id'] . " 
                ORDER BY zone_id"
             );
