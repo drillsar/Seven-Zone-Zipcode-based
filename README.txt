@@ -2,7 +2,7 @@
 tested on Zencart V1.5.5
 
 Support thread:
-https://www.zen-cart.com/showthread.php?223412-ZipCodeZone-Working-on-updated-module-help
+https://www.zen-cart.com/showthread.php?223429-Seven-Zone-Zipcode-Based-Support-Thread
 
 
 New in this version:
