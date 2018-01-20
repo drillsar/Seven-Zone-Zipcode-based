@@ -110,7 +110,7 @@ Next, you will need to define which countries are in each zone.  Determining
 
 // class constructor
     function __construct() {
-      global $db, $order;
+      global $order, $db;
 
 // CUSTOMIZE THIS SETTING FOR THE NUMBER OF ZONES NEEDED
       $this->num_zones = 7;
@@ -123,35 +123,32 @@ Next, you will need to define which countries are in each zone.  Determining
       $this->icon = '';
       $this->tax_class = MODULE_SHIPPING_ZIPCODEZONE_TAX_CLASS;
       $this->tax_basis = MODULE_SHIPPING_ZIPCODEZONE_TAX_BASIS;
-
       // disable only when entire cart is free shipping
-      if (zen_get_shipping_enabled ($this->code)) {
-      $this->enabled = (MODULE_SHIPPING_ZIPCODEZONE_STATUS == 'True');
-      } else {
-          $this->enabled = false;
-
-      }
-
-        if (is_object ($order) && $this->enabled && (int)MODULE_SHIPPING_ZIPCODEZONE_ZONE > 0) {
-            $enabled_for_zone = false;
-            $check = $db->Execute (
-                "SELECT zone_id 
-                   FROM " . TABLE_ZONES_TO_GEO_ZONES . " 
-                  WHERE geo_zone_id = '" . MODULE_SHIPPING_ZIPCODEZONE_ZONE . "' 
-                    AND zone_country_id = " . $order->delivery['country']['id'] . " 
-               ORDER BY zone_id"
-            );
-            while (!$check->EOF) {
-                if ($check->fields['zone_id'] < 1 || $check->fields['zone_id'] == $order->delivery['zone_id']) {
-                    $enabled_for_zone = true;
-                    break;
+      if (zen_get_shipping_enabled($this->code)) {
+      $this->enabled = ((MODULE_SHIPPING_ZIPCODEZONE_STATUS == 'True') ? true : false);
+      } 
+        if ( ($this->enabled == true) && ((int)MODULE_SHIPPING_ZIPCODEZONE_ZONE > 0) ) {
+            $check_flag = false;
+      $check = $db->Execute("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . "
+                             where geo_zone_id = '" . MODULE_SHIPPING_ZIPCODEZONE_ZONE . "'
+                             and zone_country_id = '" . (int)$order->delivery['country']['id'] . "'
+                             order by zone_id");
+      while (!$check->EOF) {
+        if ($check->fields['zone_id'] < 1) {
+          $check_flag = true;
+          break;
+        } elseif ($check->fields['zone_id'] == $order->delivery['zone_id']) {
+          $check_flag = true;
+          break;
                 }
                 $check->MoveNext();
             }
-            $this->enabled = $enabled_for_zone;
+             if ($check_flag == false) {
+        $this->enabled = false;
         }
+      }
 
-        if (is_object ($order) && $this->enabled) {
+      if ($this->enabled) {
         global $db;
   	  	for ($i = $this->num_zone_start; $i <= $this->num_zones + ($this->num_zone_start - 1); $i++) {
           // check MODULE_SHIPPING_ZIPCODEZONE_HANDLING_METHOD is in
