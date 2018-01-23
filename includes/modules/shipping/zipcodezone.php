@@ -100,9 +100,7 @@ Next, you will need to define which countries are in each zone.  Determining
 
   Lastly, there is a limit of 255 characters on each of the Zone
   Shipping Tables and Zone Countries.
-  To come soon is to able to ship only for a certain zone.
-  If someone can help me with that please pm me on zencart username tmccaff.
-
+  
 */
 
   class zipcodezone {
